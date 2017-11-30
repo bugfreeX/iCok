@@ -21,15 +21,15 @@
 - `wxa6711111111`
 
 
-### Usage
+### Usage.
 
 ##### `微信登录`
 
 ```objective-c
 [iCok loginWithWXAppId:@"wxa6711111111" appSecret:@"bb870c004ac64486379341949e17d5b4" completeHandler:^(NSDictionary *response) {
-NSLog(@"微信登录成功:%@",response);
+  NSLog(@"微信登录成功:%@",response);
 } failure:^(NSError *error) {
-NSLog(@"微信登录失败:%@",error.description);
+  NSLog(@"微信登录失败:%@",error.description);
 }];
 
 ```
@@ -38,9 +38,9 @@ NSLog(@"微信登录失败:%@",error.description);
 
 ```objective-c
 [iCok shareWithWXAppId:@"wxa6711111111" scene:ICOK_SESSION_TYPE title:@"title" description:@"description" link:@"https://www.github.com" image:[UIImage imageNamed:@"profile"] completeHandler:^(NSDictionary *response) {
-NSLog(@"微信分享成功");
+  NSLog(@"微信分享成功");
 } failure:^(NSError *error) {
-NSLog(@"微信分享失败:%@",error.description);
+  NSLog(@"微信分享失败:%@",error.description);
 }];
 ```
 
@@ -49,9 +49,9 @@ NSLog(@"微信分享失败:%@",error.description);
 
 ```objective-c
 [iCok loginWithQQAppId:@"111111111" completeHandler:^(NSDictionary *response) {
-NSLog(@"QQ登录成功:%@",response);
+  NSLog(@"QQ登录成功:%@",response);
 } failure:^(NSError *error){
-NSLog(@"QQ登录失败:%@",error.description);
+  NSLog(@"QQ登录失败:%@",error.description);
 }];
 ```
 
@@ -59,8 +59,8 @@ NSLog(@"QQ登录失败:%@",error.description);
 
 ```objective-c
 [iCok shareWithQQAppId:@"111111111" scene:ICOK_SESSION_TYPE title:@"title" description:@"description" link:@"https://www.github.com" image:[UIImage imageNamed:@"profile"] completeHandler:^(NSDictionary *response) {
-NSLog(@"QQ分享成功");
+  NSLog(@"QQ分享成功");
 } failure:^(NSError *error) {
-NSLog(@"QQ分享失败:%@",error.description);
+  NSLog(@"QQ分享失败:%@",error.description);
 }];
 ```
