@@ -3,7 +3,7 @@
 `无需官方SDK,实现微信、QQ社交功能,支持Web登录`
 
 ### Configuration.
-如果需要使用`canOpenURL`判断是否安装客户端,则务必添加以下白名单
+如果需要使用`canOpenURL:`判断是否安装客户端,则务必添加以下白名单
 
 - `wechat`
 - `weixin`
