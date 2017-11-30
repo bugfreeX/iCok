@@ -19,8 +19,9 @@ typedef void (^iCokFailure)(NSError *error);
  微信登录
 
  @param appid 微信平台appid
+ @param secret 微信平台appSecret
  */
-+(void)loginWithWXAppId:(NSString *)appid completeHandler:(iCokCompleteHandler)handler failure:(iCokFailure)failure;
++(void)loginWithWXAppId:(NSString *)appid appSecret:(NSString *)secret completeHandler:(iCokCompleteHandler)handler failure:(iCokFailure)failure;
 
 /**
  QQ登录

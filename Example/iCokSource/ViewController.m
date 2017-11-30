@@ -28,7 +28,7 @@
     ((UISegmentedControl *)sender).selectedSegmentIndex = -1;
     switch (index) {
         case 0:{
-            [iCok loginWithWXAppId:@"wxa67eeeb312ddcbf3" completeHandler:^(NSDictionary *response) {
+            [iCok loginWithWXAppId:@"wxa67eeeb312ddcbf3" appSecret:@"bb870c004ac64486379341949e17d5b4" completeHandler:^(NSDictionary *response) {
                 NSLog(@"微信登录成功:%@",response);
             } failure:^(NSError *error) {
                 NSLog(@"微信登录失败:%@",error);
@@ -53,7 +53,7 @@
             [iCok shareWithQQAppId:@"1105209207" scene:ICOK_SESSION_TYPE title:@"title" description:@"description" link:@"https://www.github.com" image:[UIImage imageNamed:@"profile"] completeHandler:^(NSDictionary *response) {
                 NSLog(@"QQ分享成功");
             } failure:^(NSError *error) {
-                NSLog(@"QQ分享失败:%@",error);
+                NSLog(@"QQ分享失败:%@",error.description);
             }];
             
         }break;

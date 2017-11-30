@@ -12,14 +12,16 @@
 #import <WebKit/WebKit.h>
 static iCokCompleteHandler _completeHandler;
 static iCokFailure _failure;
+static NSString * appSecret;
 @implementation iCok
-+(void)loginWithWXAppId:(NSString *)appid completeHandler:(iCokCompleteHandler)handler failure:(iCokFailure)failure{
++(void)loginWithWXAppId:(NSString *)appid appSecret:(NSString *)secret completeHandler:(iCokCompleteHandler)handler failure:(iCokFailure)failure{
     if (handler) {
         _completeHandler = handler;
     }
     if (failure) {
         _failure = failure;
     }
+    appSecret = secret;
     NSString * urlString = [NSString stringWithFormat:@"weixin://app/%@/auth/?scope=snsapi_userinfo&state=Weixinauth",appid];
     BOOL open = [[UIApplication sharedApplication] openURL:[NSURL URLWithString:urlString]];
     if (!open) {
@@ -162,9 +164,13 @@ static iCokFailure _failure;
         NSString * appid = [url.absoluteString componentsSeparatedByString:@"://"].firstObject;
         NSDictionary * dictionary = [NSPropertyListSerialization propertyListWithData:[[UIPasteboard generalPasteboard] dataForPasteboardType:@"content"]?:[[NSData alloc]init] options:0 format:0 error:nil][appid];
         if ([url.absoluteString containsString:@"://oauth"]) {
-            if (_completeHandler) {
-                _completeHandler([self parseUrl:url]);
-            }
+            NSDictionary * resDictionary = [self parseUrl:url];
+            NSString * requestString = [NSString stringWithFormat:@"https://api.weixin.qq.com/sns/oauth2/access_token?appid=%@&secret=%@&code=%@&grant_type=authorization_code",appid,appSecret,resDictionary[@"code"]];
+            [self requestURL:requestString completionHandler:^(NSDictionary *response) {
+                if (_completeHandler) {
+                    _completeHandler(response);
+                }
+            }];
         }else if ([url.absoluteString containsString:@"://wapoauth"]){
             NSDictionary * response = [self parseUrl:url];
             NSString * url = [NSString stringWithFormat:@"https://open.weixin.qq.com/connect/smsauthorize?appid=%@&redirect_uri=%@://oauth&response_type=code&scope=snsapi_message,snsapi_userinfo,snsapi_friend,snsapi_contact&state=Weixinauth&uid=1&m=%@&t=%@",appid,appid,response[@"m"],response[@"t"]];
@@ -215,6 +221,21 @@ static iCokFailure _failure;
         [queryStringDictionary setObject:range.length>0?[keyValuePair substringFromIndex:range.location+1]:@"" forKey:(range.length?[keyValuePair substringToIndex:range.location]:keyValuePair)];
     }
     return queryStringDictionary;
+}
+
++(void)requestURL:(NSString *)url completionHandler:(void(^)(NSDictionary * response))handler{
+    NSURLRequest * request = [[NSURLRequest alloc]initWithURL:[NSURL URLWithString:url] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10];
+    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
+        if (connectionError) {
+            if (_failure) {
+                _failure(connectionError);
+            }
+        }else{
+            if (handler) {
+                handler([NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:nil]);
+            }
+        }
+    }];
 }
 
 @end
