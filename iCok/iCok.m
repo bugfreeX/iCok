@@ -11,8 +11,10 @@
 #import "iCokWebViewController.h"
 #import <WebKit/WebKit.h>
 static iCokCompleteHandler _completeHandler;
+static payResponse payResp;
 static iCokFailure _failure;
 static NSString * appSecret;
+static NSString * WXAppId;
 @implementation iCok
 +(void)loginWithWXAppId:(NSString *)appid appSecret:(NSString *)secret completeHandler:(iCokCompleteHandler)handler failure:(iCokFailure)failure{
     if (handler) {
@@ -31,6 +33,25 @@ static NSString * appSecret;
         viewController.title = @"微信登录";
         UINavigationController * nav = [[UINavigationController alloc]initWithRootViewController:viewController];
         [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:nav animated:YES completion:nil];
+    }
+}
+
++(void)payWithWXAppId:(NSString *)appId partnerId:(NSString *)partnerId prepayId:(NSString *)prepayId nonceStr:(NSString *)nonceStr timeStamp:(NSString *)timeStamp package:(NSString *)package sign:(NSString *)sign completedHandler:(payResponse)handler{
+    if (handler) payResp = handler;
+    if (appId.length == 0) { payResp(-1, @"openID parameter cannot be null"); return;}
+    if (partnerId.length == 0) { payResp(-1, @"partnerId parameter cannot be null"); return;}
+    if (prepayId.length == 0) { payResp(-1, @"prepayId parameter cannot be null"); return;}
+    if (nonceStr.length == 0) { payResp(-1, @"nonceStr parameter cannot be null"); return;}
+    if (timeStamp.length == 0) { payResp(-1, @"timeStamp parameter cannot be null"); return;}
+    if (package.length == 0) { payResp(-1, @"package parameter cannot be null"); return;}
+    if (sign.length == 0) { payResp(-1, @"sign parameter cannot be null"); return;}
+    WXAppId = appId;
+    NSString * parameter = [NSString stringWithFormat:@"nonceStr=%@&package=%@&partnerId=%@&prepayId=%@&timeStamp=%@&sign=%@&signType=%@",nonceStr,[self URLEncodedString:package],partnerId,prepayId,timeStamp,[self URLEncodedString:sign],@"SHA1"];
+    NSString * openUrl = [NSString stringWithFormat:@"weixin://app/%@/%@/?%@",WXAppId,@"pay",parameter];
+    NSLog(@"%@",openUrl);
+    BOOL isOpen = [[UIApplication sharedApplication] openURL:[NSURL URLWithString:openUrl]];
+    if (!isOpen) {
+        payResp(-2, @"can't open");
     }
 }
 
@@ -160,6 +181,28 @@ static NSString * appSecret;
                 }
             }
         }
+    }else if ([url.absoluteString hasPrefix:WXAppId] && [url.absoluteString containsString:@"//pay/"]){
+        NSArray *retArray = [url.absoluteString componentsSeparatedByString:@"&"];
+        NSInteger errCode = -1;
+        NSString * errString = @"unknown error";
+        for (NSString *retString in retArray) {
+            if ([retString containsString:@"ret="]) {
+                errCode = [retString componentsSeparatedByString:@"ret="].lastObject.integerValue;
+            }
+        }
+        if (errCode == 0) {
+            errString = @"success";
+        }else if (errCode == -3){
+            errString = @"user cancel";
+        }else if (errCode == -4){
+            errString = @"send error";
+        }else if (errCode == -5){
+            errString = @"auth failure";
+        }else if (errCode == -6){
+            errString = @"operation not supported";
+        }
+        payResp(errCode, errString);
+        return YES;
     }else if([url.absoluteString hasPrefix:@"wx"]){
         NSString * appid = [url.absoluteString componentsSeparatedByString:@"://"].firstObject;
         NSDictionary * dictionary = [NSPropertyListSerialization propertyListWithData:[[UIPasteboard generalPasteboard] dataForPasteboardType:@"content"]?:[[NSData alloc]init] options:0 format:0 error:nil][appid];
@@ -236,6 +279,15 @@ static NSString * appSecret;
             }
         }
     }];
+}
+
++(NSString *)URLEncodedString:(NSString *)string{
+    NSString *encodedString = (NSString *) CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+                                                                                                     (CFStringRef)string,
+                                                                                                     NULL,
+                                                                                                     (CFStringRef)@"!*'();:@&=+$,/?%#[]",
+                                                                                                     kCFStringEncodingUTF8));
+    return encodedString;
 }
 
 @end

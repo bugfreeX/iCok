@@ -34,6 +34,15 @@
 
 ```
 
+##### `微信支付`
+
+```objective-c
+[iCok payWithWXAppId:@"wxa6711111111" partnerId:@"1481780342" prepayId:@"wx2911544713016644f156aae92694821682" nonceStr:@"XjiVmUyU48Mgqb664cZxbv52ujhVgdyR" timeStamp:@"1535514887" package:@"Sign=WXPay" sign:@"FBF9D9783DD2661D574C51E0E15B0C0F" completedHandler:^(NSInteger errorCode, NSString *msg) {
+NSLog(@"errorCode : %ld",errorCode);
+NSLog(@"msg : %@",msg);
+}];
+```
+
 ##### `微信分享`
 
 ```objective-c

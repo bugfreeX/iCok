@@ -43,7 +43,9 @@
         [[UIPasteboard generalPasteboard] setData:data forPasteboardType:@"content"];
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@://error?",appid]]];
     }
-    [self dismissViewControllerAnimated:YES completion:nil];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self dismissViewControllerAnimated:YES completion:nil];
+    });
 }
 
 
@@ -61,7 +63,9 @@
         NSData * data = [NSKeyedArchiver archivedDataWithRootObject:dictionary];
         [[UIPasteboard generalPasteboard] setData:data forPasteboardType:[@"com.tencent.tencent" stringByAppendingString:appid]];
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
-        [self dismissViewControllerAnimated:YES completion:nil];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self dismissViewControllerAnimated:YES completion:nil];
+        });
     }
 }
 
